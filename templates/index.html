@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KONWERTER LINKÓW</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            color: #ffffff;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #vanta {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.7);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        form {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s, box-shadow 0.3s;
+            width: 400px;
+            margin-top: 30px;
+        }
+
+        form:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 40px rgba(255, 255, 255, 0.8);
+        }
+
+        label {
+            margin: 10px 0;
+            font-size: 1.1rem;
+            display: block;
+        }
+
+        input, select {
+            width: calc(100% - 16px);
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 1rem;
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        button {
+            background: #007bff;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background 0.3s;
+            width: 100%;
+        }
+
+        button:hover {
+            background: #0056b3;
+            transform: scale(1.05);
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 1.1rem;
+            color: #FFD700;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="vanta"></div>
+    <div class="container">
+        <h1><i class="fas fa-video"></i> KONWERTER LINKÓW</h1>
+        <form id="conversion-form">
+            <label for="converter">Wybierz konwerter:</label>
+            <select id="converter" name="converter" required>
+                <option value="link">Konwerter linków</option>
+                <option value="image">Konwerter obrazów</option>
+            </select>
+
+            <div id="link-options">
+                <label for="platform">Wybierz platformę:</label>
+                <select id="platform" name="platform" required>
+                    <option value="youtube">YouTube</option>
+                    <option value="tiktok">TikTok</option>
+                    <option value="vimeo">Vimeo</option>
+                    <option value="twitter">Twitter</option>
+                </select>
+                
+                <label for="url">Podaj link:</label>
+                <input type="text" id="url" name="url" required>
+                
+                <label for="file-type">Wybierz rodzaj pliku:</label>
+                <select id="file-type" name="file-type" required>
+                    <option value="video">Wideo</option>
+                    <option value="audio">Audio</option>
+                </select>
+
+                <div id="format-options" style="display: none;">
+                    <label for="format">Wybierz format:</label>
+                    <select id="format" name="format" required>
+                        <option value="mp4">MP4</option>
+                        <option value="mp3">MP3</option>
+                    </select>
+                </div>
+
+                <div id="quality-options" style="display: none;">
+                    <label for="quality">Wybierz jakość wideo:</label>
+                    <select id="quality" name="quality">
+                        <option value="1">720p</option>
+                        <option value="2">1080p</option>
+                        <option value="max">Najwyższa dostępna</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="image-options" style="display: none;">
+                <label for="img-url">Podaj URL obrazu:</label>
+                <input type="text" id="img-url" name="img-url">
+                
+                <label for="img-format">Wybierz format obrazu:</label>
+                <select id="img-format" name="img-format" required>
+                    <option value="png">PNG</option>
+                    <option value="jpg">JPG</option>
+                </select>
+            </div>
+
+            <button type="submit">Pobierz <i class="fas fa-download"></i></button>
+        </form>
+
+        <div class="result" id="result"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://vantajs.com/dist/vanta.clouds.min.js"></script>
+    <script>
+        VANTA.CLOUDS({
+            el: "#vanta",
+            THREE: window.THREE,
+            color1: 0x1b2a6e,
+            color2: 0x8c5aff,
+            skyColor: "#1f1c2c",
+            cloudColor: "#f1f1f1",
+            waveHeight: 40.00,
+            zoom: 1.00
+        });
+
+        document.getElementById('converter').addEventListener('change', function() {
+            const converterType = this.value;
+            const linkOptions = document.getElementById('link-options');
+            const imageOptions = document.getElementById('image-options');
+
+            if (converterType === 'link') {
+                linkOptions.style.display = 'block';
+                imageOptions.style.display = 'none';
+            } else {
+                linkOptions.style.display = 'none';
+                imageOptions.style.display = 'block';
+            }
+        });
+
+        document.getElementById('file-type').addEventListener('change', function() {
+            const fileType = this.value;
+            document.getElementById('format-options').style.display = 'block';
+            
+            if (fileType === 'video') {
+                document.getElementById('quality-options').style.display = 'block';
+            } else {
+                document.getElementById('quality-options').style.display = 'none';
+            }
+
+            if (fileType === 'audio') {
+                document.getElementById('format').innerHTML = `
+                    <option value="mp3">MP3</option>
+                `;
+            } else {
+                document.getElementById('format').innerHTML = `
+                    <option value="mp4">MP4</option>
+                    <option value="mp3">MP3</option>
+                `;
+            }
+        });
+
+        document.getElementById('conversion-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const converterType = document.getElementById('converter').value;
+            let url, format, quality;
+
+            if (converterType === 'link') {
+                url = document.getElementById('url').value;
+                const fileType = document.getElementById('file-type').value;
+                format = document.getElementById('format').value;
+                quality = fileType === 'video' ? document.getElementById('quality').value : null;
+
+                fetch('/download', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ url: url, platform: document.getElementById('platform').value, 'file-type': fileType, format: format, quality: quality })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('result').innerText = data.message;
+                })
+                .catch(error => {
+                    document.getElementById('result').innerText = 'Wystąpił błąd: ' + error.message;
+                });
+            } else {
+                url = document.getElementById('img-url').value;
+                format = document.getElementById('img-format').value;
+
+                // Wysyłanie do backendu w przypadku obrazów
+                fetch('/download', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ url: url, 'file-type': 'image', format: format })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('result').innerText = data.message;
+                })
+                .catch(error => {
+                    document.getElementById('result').innerText = 'Wystąpił błąd: ' + error.message;
+                });
+            }
+        });
+    </script>
+</body>
+</html>
