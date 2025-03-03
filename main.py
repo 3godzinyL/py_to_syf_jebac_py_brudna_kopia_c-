@@ -1,198 +1,78 @@
-import os
-import sys
-import time
+from flask import Flask, render_template, request, jsonify
 from yt_dlp import YoutubeDL
+import os
+from PIL import Image
+import io
 
-# Kolory ANSI
-RESET = "\033[0m"
-WHITE = "\033[37m"
-GREEN = "\033[32m"
+app = Flask(__name__)
 
-# Długość paska postępu
-BAR_LENGTH = 20
-
-def baner():
-    """Prosty baner tekstowy."""
-    print("=" * 50)
-    print("   K O N W E R T E R   L I N K Ó W  (YouTube)  ")
-    print("=" * 50)
-
-def print_progress_bar(progress):
-    """Wyświetla pasek postępu z animacją."""
-    green_blocks = int(BAR_LENGTH * progress)
-    white_blocks = BAR_LENGTH - green_blocks
-    bar = GREEN + "#" * green_blocks + WHITE + "#" * white_blocks + RESET
-    percent_display = int(progress * 100)
-    print(f"[{bar}] {percent_display}%\r", end='', flush=True)
-
-def clear_console():
-    """Czyści konsolę."""
-    os.system('cls' if os.name == 'nt' else 'clear')
-
-def progress_hook(d):
-    """Funkcja wywoływana przez yt_dlp podczas postępu pobierania."""
-    if d['status'] == 'downloading':
-        total_bytes = d.get('total_bytes') or d.get('total_bytes_estimate')
-        downloaded = d.get('downloaded_bytes', 0)
-        if total_bytes:
-            progress = downloaded / total_bytes
-            print_progress_bar(progress)
-    elif d['status'] == 'finished':
-        print_progress_bar(1)
-        print()  # przejście do nowej linii po ukończeniu
-
-def pobierz_mp4(url, wybor_jakosci):
-    if wybor_jakosci == "1":
-        format_code = 'bestvideo[height<=720]+bestaudio/best'
-    elif wybor_jakosci == "2":
-        format_code = 'bestvideo[height<=1080]+bestaudio/best'
-    else:
-        format_code = 'bestvideo+bestaudio/best'
-    
+def pobierz_wideo(url, format_code):
     ydl_opts = {
         'format': format_code,
-        'outtmpl': '%(title)s.%(ext)s',
-        'merge_output_format': 'mp4',
-        'ffmpeg_location': r'C:\Users\huber\AppData\Local\Microsoft\WinGet\Packages\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\ffmpeg-7.1-full_build\bin\ffmpeg.exe',
-        'progress_hooks': [progress_hook],
+        'outtmpl': '%(title)s.%(ext)s',  # Zmieniono aby zapisywało plik w formacie tytułu
+        'merge_output_format': 'mp4' if 'video' in format_code else None,
         'quiet': True,
         'no_warnings': True,
     }
     
     try:
         with YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=False)
-            channel_name = info.get('uploader', 'Nieznany kanał')
-            
-            print(f"Kanał: {channel_name}")
-            print("Pobieranie w toku, proszę czekać...")
-            
             ydl.download([url])
-        print("Film (MP4) pobrany pomyślnie!")
+        return True, "Pobieranie wideo zakończone pomyślnie!"
     except Exception as e:
-        print(f"Wystąpił błąd: {e}")
+        return False, str(e)
 
-def pobierz_mp3(url):
-    ydl_opts = {
-        'format': 'bestaudio/best',
-        'outtmpl': '%(title)s.%(ext)s',
-        'postprocessors': [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'mp3',
-            'preferredquality': '192',
-        }],
-        'ffmpeg_location': r'C:\Users\huber\AppData\Local\Microsoft\WinGet\Packages\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\ffmpeg-7.1-full_build\bin\ffmpeg.exe',
-        'progress_hooks': [progress_hook],
-        'quiet': True,
-        'no_warnings': True,
-    }
-    
+def konwertuj_obraz(plik_wejsciowy, format):
     try:
-        with YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=False)
-            channel_name = info.get('uploader', 'Nieznany kanał')
-            
-            print(f"Kanał: {channel_name}")
-            print("Pobieranie w toku, proszę czekać...")
-            
-            ydl.download([url])
-        print("Audio (MP3) pobrane pomyślnie!")
-    except Exception as e:
-        print(f"Wystąpił błąd: {e}")
-
-def pobierz_tiktok(url, wybor_formatu):
-    """Pobiera film z TikToka w wybranym formacie."""
-    format_code = 'bestvideo+bestaudio/best' if wybor_formatu == "1" else 'bestaudio/best'
-    
-    ydl_opts = {
-        'format': format_code,
-        'outtmpl': '%(title)s.%(ext)s',
-        'merge_output_format': 'mp4' if wybor_formatu == "1" else None,
-        'ffmpeg_location': r'C:\Users\huber\AppData\Local\Microsoft\WinGet\Packages\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\ffmpeg-7.1-full_build\bin\ffmpeg.exe',
-        'progress_hooks': [progress_hook],
-        'quiet': True,
-        'no_warnings': True,
-    }
-    
-    try:
-        with YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=False)
-            channel_name = info.get('uploader', 'Nieznany kanał')
-            
-            print(f"Kanał: {channel_name}")
-            print("Pobieranie w toku, proszę czekać...")
-            
-            ydl.download([url])
-        print("Film (MP4) lub audio (MP3) pobrane pomyślnie!")
-    except Exception as e:
-        print(f"Wystąpił błąd: {e}")
-
-def menu():
-    """Wyświetla menu główne i obsługuje wybory użytkownika."""
-    baner()
-    print("1. YouTube (konwertuj link)")
-    print("2. TikTok (pobierz film)")
-    print("3. Wyjście")
-    wybor_zrodla = input("Wybierz opcję: ").strip()
-    return wybor_zrodla
-
-def main():
-    while True:
-        clear_console()
-        wybor_zrodla = menu()
+        # Otwórz obraz
+        img = Image.open(plik_wejsciowy)
+        plik_sciezki = os.path.splitext(plik_wejsciowy)[0] + '.' + format
+        img.save(plik_sciezki)
         
-        if wybor_zrodla == "1":
-            url = input("Podaj link do filmu YouTube: ").strip()
-            if not url:
-                print("Nie podano linku. Powrót do menu...")
-                time.sleep(2)
-                continue
-            
-            print("Wybierz format:")
-            print("1. MP4")
-            print("2. MP3")
-            wybor_formatu = input("Twój wybór: ").strip()
-            
-            if wybor_formatu == "1":
-                print("Wybierz jakość wideo:")
-                print("1. 720p")
-                print("2. 1080p")
-                print("3. Najwyższa dostępna")
-                wybor_jakosci = input("Twój wybór: ").strip()
-                pobierz_mp4(url, wybor_jakosci)
-            
-            elif wybor_formatu == "2":
-                pobierz_mp3(url)
-            
+        return True, f"Konwersja zakończona! Zapisano jako {plik_sciezki}"
+    except Exception as e:
+        return False, str(e)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/download', methods=['POST'])
+def download():
+    data = request.get_json()
+    url = data['url']
+    format = data['format']
+    quality = data.get('quality', None)
+    
+    if data['file-type'] == 'video':
+        if format == 'mp4':
+            if quality == "1":
+                format_code = 'bestvideo[height<=720]+bestaudio/best'
+            elif quality == "2":
+                format_code = 'bestvideo[height<=1080]+bestaudio/best'
             else:
-                print("Nieprawidłowy wybór formatu.")
-            
-            input("Naciśnij ENTER, aby powrócić do menu...")
-        
-        elif wybor_zrodla == "2":
-            url = input("Podaj link do filmu TikTok: ").strip()
-            if not url:
-                print("Nie podano linku. Powrót do menu...")
-                time.sleep(2)
-                continue
-            
-            print("Wybierz format:")
-            print("1. MP4")
-            print("2. MP3")
-            wybor_formatu = input("Twój wybór: ").strip()
-            
-            if wybor_formatu == "1" or wybor_formatu == "2":
-                pobierz_tiktok(url, wybor_formatu)
-            else:
-                print("Nieprawidłowy wybór formatu.")
-        
-        elif wybor_zrodla == "3":
-            print("Zakończono działanie programu.")
-            break
-        
+                format_code = 'bestvideo+bestaudio/best'
+        elif format == 'mp3':
+            format_code = 'bestaudio/best'
         else:
-            print("Nieprawidłowy wybór. Spróbuj ponownie.")
-            time.sleep(2)
+            return jsonify({'message': 'Nieprawidłowy format video'}), 400
 
-if __name__ == "__main__":
-    main()
+        success, message = pobierz_wideo(url, format_code)
+
+    elif data['file-type'] == 'image':
+        if "data:image" in url:
+            format = format.lower()  # Upewniamy się, że format jest małymi literami
+            # Zapisać obraz jako plik
+            image_data = url.split(",")[1]
+            image_binary = io.BytesIO(base64.b64decode(image_data))
+            success, message = konwertuj_obraz(image_binary, format)
+        else:
+            return jsonify({'message': 'Nieprawidłowy URL dla obrazu'}), 400
+            
+    else:
+        return jsonify({'message': 'Nieprawidłowy typ pliku'}), 400
+
+    return jsonify({'message': message})
+
+if __name__ == '__main__':
+    app.run(debug=True)
