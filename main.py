@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, send_file
+from flask import Flask, render_template, request, jsonify, send_file, url_for
 from yt_dlp import YoutubeDL
 import os
 import base64
@@ -8,7 +8,10 @@ import uuid
 from werkzeug.utils import secure_filename
 import mimetypes
 
-app = Flask(__name__)
+app = Flask(__name__, 
+    static_folder='static',
+    template_folder='templates'
+)
 
 # Konfiguracja aplikacji
 UPLOAD_FOLDER = 'uploads'
