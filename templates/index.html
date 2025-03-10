@@ -1,136 +1,249 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KONWERTER PLIKÓW</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KONWERTER PLIKÓW</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Główne style -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <style>
+    /* Ustawienie kafelków w jednym rzędzie */
+    .converter-options {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+      flex-wrap: nowrap;
+      gap: 1rem;
+      padding: 2rem 0;
+    }
+    /* Opcjonalnie – wymuszamy stałą szerokość kafelka */
+    .converter-card {
+      flex: 1 1 0;
+      max-width: 320px;
+    }
+  </style>
 </head>
-
 <body>
-    <div id="vanta"></div>
-    <div class="container">
-        <header class="header">
-            <h1>KONWERTER PLIKÓW</h1>
-            <p>Przekonwertuj swoje pliki w prosty i szybki sposób</p>
-        </header>
+  <!-- Tło Vanta pozostaje widoczne -->
+  <div id="vanta"></div>
+ <div style="position: absolute; top: 65%; left: 0; transform: translateY(-50%);">
+    <a href="https://mcdonalds.pl/" target="_blank">
+        <img src="static/ads/mc.gif" style="width: 180px; " >
+    </a><br>
 
-        <div class="converter-options">
-            <!-- Kafelek 1: Konwerter obrazów -->
-            <div class="converter-card" data-type="image">
-                <div class="card-content">
-                    <div class="card-icon">
-                        <i class="fas fa-images"></i>
-                    </div>
-                    <h3 class="card-title">Konwerter obrazów</h3>
-                    <p class="card-description">
-                        Przekonwertuj swoje zdjęcia do różnych formatów.
-                        Obsługiwane formaty: PNG, JPG, WEBP
-                    </p>
-                    <div class="platform-icons">
-                        <i class="fas fa-file-image"></i>
-                        <i class="fas fa-camera-retro"></i>
-                        <i class="fas fa-paint-brush"></i>
-                    </div>
-                </div>
-            </div>
+    <a href="https://play.google.com/store/apps/details?id=com.playrix.gardenscapes&hl=pl" target="_blank">
+        <img src="static/ads\gs.gif" style="width: 180px; ">
+    </a><br>
 
-            <!-- Kafelek 2: Konwerter linków -->
-            <div class="converter-card" data-type="link">
-                <div class="card-content">
-                    <div class="card-icon">
-                        <i class="fas fa-video"></i>
-                    </div>
-                    <h3 class="card-title">Konwerter linków</h3>
-                    <p class="card-description">
-                        Pobieraj wideo i audio z popularnych platform
-                    </p>
-                    <div class="platform-icons">
-                        <i class="fab fa-youtube"></i>
-                        <i class="fab fa-tiktok"></i>
-                        <i class="fab fa-vimeo-v"></i>
-                        <i class="fab fa-twitter"></i>
-                    </div>
-                </div>
-            </div>
+    <a href="https://play.google.com/store/apps/details?id=com.Kicha3DStudio.CallOfSwatMobileFPS&hl=pl" target="_blank">
+        <img src="static/ads/swat.gif" style="width: 180px;">
+    </a>
+    </div>
+  <div class="container">
+    <header class="header">
+      <h1>KONWERTER PLIKÓW</h1>
+      <p>Przekonwertuj swoje pliki w prosty i szybki sposób</p>
+    </header>
+
+    <!-- Panel opcji – kafelki ułożone poziomo -->
+    <div class="converter-options">
+      <!-- Kafelek 1: Konwerter obrazów -->
+      <div class="converter-card" data-type="image">
+        <div class="card-content">
+          <div class="card-icon"><i class="fas fa-images"></i></div>
+          <h3 class="card-title">Konwerter obrazów</h3>
+          <p class="card-description">
+            Przekonwertuj swoje zdjęcia do różnych formatów.<br>
+            Obsługiwane formaty: PNG, JPG, WEBP
+          </p>
+          <div class="platform-icons">
+            <i class="fas fa-file-image"></i>
+            <i class="fas fa-camera-retro"></i>
+            <i class="fas fa-paint-brush"></i>
+          </div>
         </div>
-
-        <!-- Formularz dla obrazów -->
-        <div id="image-form" class="conversion-form">
-            <div class="drop-zone">
-                <i class="fas fa-cloud-upload-alt"></i>
-                <p>Przeciągnij i upuść plik lub kliknij, aby wybrać</p>
-                <input type="file" id="file-input" accept="image/*" style="display: none">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Format docelowy</label>
-                <select class="form-control" id="img-format">
-                    <option value="png">PNG</option>
-                    <option value="jpg">JPG</option>
-                    <option value="webp">WEBP</option>
-                </select>
-            </div>
-            <button class="btn-convert">
-                <i class="fas fa-magic"></i>
-                Konwertuj
-            </button>
+      </div>
+      <!-- Kafelek 2: Konwerter linków -->
+      <div class="converter-card" data-type="link">
+        <div class="card-content">
+          <div class="card-icon"><i class="fas fa-video"></i></div>
+          <h3 class="card-title">Konwerter linków</h3>
+          <p class="card-description">
+            Pobieraj wideo i audio z popularnych platform
+          </p>
+          <div class="platform-icons">
+            <i class="fab fa-youtube"></i>
+            <i class="fab fa-tiktok"></i>
+            <i class="fab fa-vimeo-v"></i>
+            <i class="fab fa-twitter"></i>
+          </div>
         </div>
-
-        <!-- Formularz dla linków -->
-        <div id="link-form" class="conversion-form">
-            <div class="form-group">
-                <label class="form-label">Platforma</label>
-                <select class="form-control" id="platform">
-                    <option value="youtube">YouTube</option>
-                    <option value="tiktok">TikTok</option>
-                    <option value="vimeo">Vimeo</option>
-                    <option value="twitter">Twitter</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Link</label>
-                <input type="text" class="form-control" id="url" placeholder="Wklej link do filmu...">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Format</label>
-                <select class="form-control" id="format">
-                    <option value="mp4">MP4</option>
-                    <option value="mp3">MP3</option>
-                </select>
-            </div>
-            <div class="form-group" id="quality-group">
-                <label class="form-label">Jakość</label>
-                <select class="form-control" id="quality">
-                    <option value="1">720p</option>
-                    <option value="2">1080p</option>
-                    <option value="max">Najwyższa dostępna</option>
-                </select>
-            </div>
-            <button class="btn-convert">
-                <i class="fas fa-download"></i>
-                Pobierz
-            </button>
+      </div>
+      <!-- Kafelek 3: Szyfrowanie kodu -->
+      <div class="converter-card" data-type="encryption">
+        <div class="card-content">
+          <div class="card-icon"><i class="fas fa-lock"></i></div>
+          <h3 class="card-title">Szyfrowanie kodu</h3>
+          <p class="card-description">
+            Szyfruj i deszyfruj kod źródłowy C++ i JavaScript
+          </p>
+          <div class="platform-icons">
+            <i class="fab fa-js"></i>
+            <i class="fab fa-cpp"></i>
+            <i class="fas fa-key"></i>
+          </div>
         </div>
+      </div>
     </div>
 
-    <script>
-        // Obsługa kliknięć w karty
-        document.getElementById('image-card').addEventListener('click', () => {
-            document.getElementById('image-form').style.display = 'flex';
-        });
+    <!-- Formularz dla obrazów -->
+    <div id="image-form" class="conversion-form">
+      <div class="drop-zone">
+        <i class="fas fa-cloud-upload-alt"></i>
+        <p>Przeciągnij i upuść plik lub kliknij, aby wybrać</p>
+        <input type="file" id="file-input" accept="image/*" style="display: none">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Format docelowy</label>
+        <select class="form-control" id="img-format">
+          <option value="png">PNG</option>
+          <option value="jpg">JPG</option>
+          <option value="webp">WEBP</option>
+        </select>
+      </div>
+      <button class="btn-convert">
+        <i class="fas fa-magic"></i> Konwertuj
+      </button>
+    </div>
 
-        document.getElementById('link-card').addEventListener('click', () => {
-            document.getElementById('link-form').style.display = 'flex';
-        });
+    <!-- Formularz dla linków -->
+    <div id="link-form" class="conversion-form">
+      <div class="form-group">
+        <label class="form-label">Platforma</label>
+        <select class="form-control" id="platform">
+          <option value="youtube">YouTube</option>
+          <option value="tiktok">TikTok</option>
+          <option value="vimeo">Vimeo</option>
+          <option value="twitter">Twitter</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Link</label>
+        <input type="text" class="form-control" id="url" placeholder="Wklej link do filmu...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Format</label>
+        <select class="form-control" id="format">
+          <option value="mp4">MP4</option>
+          <option value="mp3">MP3</option>
+        </select>
+      </div>
+      <div class="form-group" id="quality-group">
+        <label class="form-label">Jakość</label>
+        <select class="form-control" id="quality">
+          <option value="1">720p</option>
+          <option value="2">1080p</option>
+          <option value="max">Najwyższa dostępna</option>
+        </select>
+      </div>
+      <button class="btn-convert">
+        <i class="fas fa-download"></i> Pobierz
+      </button>
+    </div>
 
-        // Dodaj resztę JavaScript dla obsługi formularzy
-    </script>
+    <!-- Formularz dla szyfrowania -->
+    <div id="encryption-form" class="conversion-form">
+      <!-- Wybór operacji i języka -->
+      <div class="form-group">
+        <label class="form-label">Operacja</label>
+        <select class="form-control" id="operation-type">
+          <option value="encrypt">Szyfrowanie</option>
+          <option value="decrypt">Deszyfrowanie</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Język programowania</label>
+        <select class="form-control" id="programming-language">
+          <option value="cpp">C++</option>
+          <option value="javascript">JavaScript</option>
+        </select>
+      </div>
+      <!-- Sekcja klucza z generowaniem i kopiowaniem -->
+      <div class="form-group" id="key-section">
+        <label class="form-label" id="key-label">Utwórz klucz szyfrowania</label>
+        <div class="key-input-wrapper">
+          <input type="text" class="form-control" id="encryption-key" placeholder="Wprowadź klucz szyfrowania...">
+          <button class="btn-generate-key" id="generate-key"><i class="fas fa-key"></i></button>
+          <button class="btn-copy-key" id="copy-key" title="Kopiuj klucz"><i class="fas fa-copy"></i></button>
+        </div>
+      </div>
+      <!-- Wybór metody wprowadzania kodu -->
+      <div class="form-group">
+        <label class="form-label">Metoda wprowadzania</label>
+        <select class="form-control" id="input-method">
+          <option value="file">Plik</option>
+          <option value="text">Tekst</option>
+        </select>
+      </div>
+      <!-- Sekcja wczytywania kodu z pliku -->
+      <div id="file-input-section" class="drop-zone">
+        <i class="fas fa-file-code"></i>
+        <p>Przeciągnij i upuść plik lub kliknij, aby wybrać</p>
+        <input type="file" id="code-file-input" accept=".js,.cpp,.h,.hpp" style="display: none">
+      </div>
+      <!-- Sekcja wprowadzania kodu jako tekst -->
+      <div id="text-input-section" class="form-group" style="display: none;">
+        <label class="form-label">Kod źródłowy</label>
+        <textarea class="form-control code-textarea" id="code-text-input" placeholder="Wklej swój kod tutaj..." rows="10"></textarea>
+      </div>
+      <button class="btn-convert">
+        <i class="fas fa-lock"></i> <span>Szyfruj</span>
+      </button>
+    </div>
 
-    <!-- Dodaj skrypty przed zamknięciem body -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.clouds.min.js"></script>
-    <script src="{{ url_for('static', filename='js/visual.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/converter.js') }}"></script>
+
+
+    <!-- Overlay dla ładowania -->
+    <div class="loading-overlay">
+      <div class="loader"></div>
+      <div class="loading-text">Przetwarzanie...</div>
+      <div class="progress-bar">
+        <div class="progress"></div>
+      </div>
+    </div>
+
+    <div id="result" class="result"></div>
+  </div>
+  <div style="position: absolute; top: 55%; right: 0; transform: translateY(-50%);">
+    <a href="https://play.google.com/store/apps/details?id=com.king.candycrushsaga&hl=pl" target="_blank">
+        <img src="static/ads/cc.gif">
+    </a><br>
+
+    <a href="http://www.warthunder.com" target="_blank">
+        <img src="static/ads/wt.gif" width="181px">
+    </a><br>
+
+    <a href="https://worldoftanks.eu" target="_blank">
+        <img src="static/ads/wot.gif" width="181px">
+    </a>
+</div>
+  <!-- Skrypty: Three.js, Vanta oraz główne -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.clouds.min.js"></script>
+  <script src="{{ url_for('static', filename='js/visual.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/converter.js') }}"></script>
+
+ <center>
+        <a href="https://pl4.ggpoker.com/" target="_blank">
+            <img src="static/ads/bet.gif" width="650px">
+
+        </a>
+
+        <a href="https://sennimusic.com/en/flap-blaster-game-android-studio-project-interstitial-ads/" target="_blank">
+            <img src="static/ads/fb.gif">
+        </a>
+    </center>
+
 </body>
-</html> 
+</html>

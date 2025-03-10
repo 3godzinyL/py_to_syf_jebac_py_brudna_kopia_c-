@@ -51,11 +51,16 @@ document.addEventListener('visibilitychange', () => {
 });
 
 // Obsługa animacji ładowania
-const loadingOverlay = document.querySelector('.loading-overlay');
-const progressBar = document.querySelector('.progress');
-const loadingText = document.querySelector('.loading-text');
-
 function showLoading(message = 'Przetwarzanie pliku...') {
+    const loadingOverlay = document.querySelector('.loading-overlay');
+    const progressBar = document.querySelector('.progress');
+    const loadingText = document.querySelector('.loading-text');
+    
+    if (!loadingOverlay || !progressBar || !loadingText) {
+        console.error('Brak elementów loadingu');
+        return null;
+    }
+
     loadingText.textContent = message;
     loadingOverlay.classList.add('active');
     progressBar.style.width = '0%';
@@ -73,6 +78,14 @@ function showLoading(message = 'Przetwarzanie pliku...') {
 }
 
 function hideLoading(interval) {
+    const loadingOverlay = document.querySelector('.loading-overlay');
+    const progressBar = document.querySelector('.progress');
+    
+    if (!loadingOverlay || !progressBar) {
+        console.error('Brak elementów loadingu');
+        return;
+    }
+
     if (interval) clearInterval(interval);
     progressBar.style.width = '100%';
     

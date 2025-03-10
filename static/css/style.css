@@ -126,6 +126,7 @@ body {
 /* Form Styles */
 .conversion-form {
     display: none;
+    flex-direction: column;
     max-width: 600px;
     margin: 2rem auto;
     padding: 2rem;
@@ -137,7 +138,7 @@ body {
 }
 
 .conversion-form.active {
-    display: block;
+    display: flex;
     animation: slideUp 0.5s ease;
 }
 
@@ -336,6 +337,8 @@ select.form-control[size] option {
     border-radius: 10px;
     text-align: center;
     display: none;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
 }
 
 .result.active {
@@ -491,4 +494,68 @@ select.form-control[size] {
         opacity: 1;
         transform: scaleY(1);
     }
+}
+
+/* Dodatkowe style dla sekcji szyfrowania */
+.code-textarea {
+    font-family: 'Consolas', 'Monaco', monospace;
+    resize: vertical;
+    min-height: 150px;
+    white-space: pre;
+    tab-size: 4;
+}
+
+#encryption-form .drop-zone {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(78, 205, 196, 0.3);
+}
+
+#encryption-form .drop-zone i {
+    font-size: 3.5rem;
+    margin-bottom: 1.5rem;
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+#encryption-form .platform-icons i.fa-cpp {
+    color: #00599C;
+}
+
+#encryption-form .platform-icons i.fa-js {
+    color: #F7DF1E;
+}
+
+/* Style dla sekcji klucza */
+.key-input-wrapper {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+#encryption-key {
+    width: 80%;
+    height: 2.5rem;
+    flex-grow: 0;
+}
+
+.btn-generate-key, .btn-copy-key {
+    padding: 1rem;
+    border: none;
+    border-radius: 10px;
+    background: var(--gradient);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.btn-generate-key:hover, .btn-copy-key:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(78, 205, 196, 0.4);
+}
+
+/* Animacja dla przycisku kopiowania */
+.btn-copy-key.copied {
+    background: #4CAF50;
 } 
