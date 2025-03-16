@@ -31,17 +31,14 @@ function initVanta() {
     });
 }
 
-// Inicjalizacja tylko gdy strona jest w pełni załadowana
 window.addEventListener('load', initVanta);
 
-// Automatyczne czyszczenie przy zamknięciu
 window.addEventListener('beforeunload', () => {
     if (vantaEffect) {
         vantaEffect.destroy();
     }
 });
 
-// Dodaj obsługę pauzy gdy strona jest nieaktywna
 document.addEventListener('visibilitychange', () => {
     if (document.hidden && vantaEffect) {
         vantaEffect.pause();
@@ -101,7 +98,6 @@ function showResult(message) {
     result.classList.add('active');
 }
 
-// Dodajemy obsługę customowych selectów
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('select.form-control').forEach(select => {
         select.addEventListener('mousedown', function(e) {
@@ -127,4 +123,4 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-}); 
+});

@@ -31,7 +31,9 @@ body {
     will-change: transform;
 }
 
-/* Header Styles */
+/*************************************
+ * WSPÓLNE STYLE DLA WSZYSTKICH SEKCJI
+ *************************************/
 .header {
     text-align: center;
     padding: 3rem 0;
@@ -52,7 +54,6 @@ body {
     margin: 0 auto;
 }
 
-/* Card Container */
 .converter-options {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -60,7 +61,6 @@ body {
     padding: 2rem 0;
 }
 
-/* Card Styles */
 .converter-card {
     background: rgba(75, 75, 85, 0.3);
     backdrop-filter: blur(5px);
@@ -123,7 +123,6 @@ body {
     font-size: 1rem;
 }
 
-/* Form Styles */
 .conversion-form {
     display: none;
     flex-direction: column;
@@ -142,6 +141,7 @@ body {
     animation: slideUp 0.5s ease;
 }
 
+/* 1_ STYLE DLA KONWERTERA OBRAZÓW */
 .drop-zone {
     border: 2px dashed rgba(255, 255, 255, 0.3);
     border-radius: 15px;
@@ -151,37 +151,63 @@ body {
     margin-bottom: 1.5rem;
     background: rgba(255, 255, 255, 0.05);
 }
-
 .drop-zone.drag-over {
     border-color: var(--primary-color);
     background: rgba(78, 205, 196, 0.1);
     transform: scale(1.02);
 }
-
 .drop-zone i {
     font-size: 3rem;
     color: var(--primary-color);
     margin-bottom: 1rem;
 }
 
+/* 2_ STYLE DLA KONWERTERA LINKÓW */
 .platform-icons {
     display: flex;
     gap: 1.5rem;
     justify-content: center;
     margin-top: 1rem;
 }
-
 .platform-icons i {
     font-size: 2rem;
     color: rgba(255, 255, 255, 0.7);
     transition: all 0.3s ease;
 }
-
 .platform-icons i:hover {
     color: var(--primary-color);
     transform: scale(1.2);
 }
 
+/* 3_ STYLE DLA SZYFROWANIA KODU */
+.code-textarea {
+    font-family: 'Consolas', 'Monaco', monospace;
+    resize: vertical;
+    min-height: 150px;
+    white-space: pre;
+    tab-size: 4;
+}
+
+#encryption-form .drop-zone {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(78, 205, 196, 0.3);
+}
+#encryption-form .drop-zone i {
+    font-size: 3.5rem;
+    margin-bottom: 1.5rem;
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+#encryption-form .platform-icons i.fa-cpp {
+    color: #00599C;
+}
+#encryption-form .platform-icons i.fa-js {
+    color: #F7DF1E;
+}
+
+/* --- Pozostałe uniwersalne style --- */
 .form-group {
     margin-bottom: 1.8rem;
     position: relative;
@@ -221,26 +247,123 @@ body {
     box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
 }
 
-.form-control option {
-    padding: 12px;
-    margin: 4px;
-    border-radius: 8px;
-    background: rgba(28, 28, 35, 0.95);
-    transition: all 0.2s ease;
+.form-control::placeholder {
+    color: rgba(255, 255, 255, 0.5);
 }
 
-.form-control option:hover,
-select.form-control option:focus {
+.btn-convert {
+    width: 100%;
+    padding: 1rem;
+    border: none;
+    border-radius: 10px;
+    background: var(--gradient);
+    color: white;
+    font-weight: 600;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-convert:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(78, 205, 196, 0.4);
+}
+
+.result {
+    margin-top: 2rem;
+    padding: 1rem;
+    border-radius: 10px;
+    text-align: center;
+    display: none;
     background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+}
+
+.result.active {
+    display: block;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+#vanta {
+    position: fixed;
+    z-index: -1;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    pointer-events: none;
+}
+
+/* Overlay ładowania */
+.loading-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(26, 26, 46, 0.9);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.loading-overlay.active {
+    display: flex;
+    animation: fadeIn 0.3s ease;
+}
+
+.loader {
+    width: 150px;
+    height: 150px;
+    border: 5px solid var(--primary-color);
+    border-radius: 50%;
+    border-top-color: var(--secondary-color);
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+.loading-text {
+    color: white;
+    font-size: 1.5rem;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.progress-bar {
+    width: 300px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    margin-top: 20px;
+}
+
+.progress {
+    width: 0%;
+    height: 100%;
+    background: var(--gradient);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
 
 .form-control:active {
     transform: translateY(1px);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.form-control::placeholder {
-    color: rgba(255, 255, 255, 0.5);
 }
 
 .custom-select-wrapper {
@@ -313,178 +436,6 @@ select.form-control[size] option {
     }
 }
 
-.btn-convert {
-    width: 100%;
-    padding: 1rem;
-    border: none;
-    border-radius: 10px;
-    background: var(--gradient);
-    color: white;
-    font-weight: 600;
-    font-size: 1.1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.btn-convert:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(78, 205, 196, 0.4);
-}
-
-.result {
-    margin-top: 2rem;
-    padding: 1rem;
-    border-radius: 10px;
-    text-align: center;
-    display: none;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(5px);
-}
-
-.result.active {
-    display: block;
-    animation: fadeIn 0.5s ease;
-}
-
-@keyframes slideUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-#vanta {
-    position: fixed;
-    z-index: -1;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    pointer-events: none;
-}
-
-/* Dodanie stylów dla animacji ładowania */
-.loading-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(26, 26, 46, 0.9);
-    z-index: 1000;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-}
-
-.loading-overlay.active {
-    display: flex;
-    animation: fadeIn 0.3s ease;
-}
-
-.loader {
-    width: 150px;
-    height: 150px;
-    border: 5px solid var(--primary-color);
-    border-radius: 50%;
-    border-top-color: var(--secondary-color);
-    animation: spin 1s linear infinite;
-    margin-bottom: 20px;
-}
-
-.loading-text {
-    color: white;
-    font-size: 1.5rem;
-    text-align: center;
-    margin-top: 20px;
-}
-
-.progress-bar {
-    width: 300px;
-    height: 4px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
-    margin-top: 20px;
-}
-
-.progress {
-    width: 0%;
-    height: 100%;
-    background: var(--gradient);
-    border-radius: 4px;
-    transition: width 0.3s ease;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-/* Dodatkowe style dla aktywnego stanu */
-.form-control:active {
-    transform: translateY(1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* Stylizacja placeholderów */
-.form-control::placeholder {
-    color: rgba(255, 255, 255, 0.5);
-}
-
-/* Dodatkowe style dla list wyboru formatu */
-#img-format, #format, #platform, #quality {
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: 500;
-    font-size: 0.95rem;
-}
-
-/* Efekt hover dla opcji w select */
-select.form-control option:hover,
-select.form-control option:checked {
-    background: rgba(77, 81, 93, 0.3);
-    color: #ffffff;
-}
-
-/* Dodajemy obsługę customowych selectów */
-.custom-select-wrapper {
-    position: relative;
-    user-select: none;
-}
-
-.custom-select {
-    position: relative;
-    display: inline-block;
-    width: 100%;
-}
-
-/* Animacja dla opcji w select */
-select.form-control {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-}
-
-select.form-control::-ms-expand {
-    display: none;
-}
-
-/* Animacja przy fokusie */
-.form-control:focus {
-    outline: none;
-    border-color: #4d515d;
-    box-shadow: 0 0 0 3px rgba(77, 81, 93, 0.25);
-    transform: translateY(-2px);
-}
-
-/* Animacja przy rozwinięciu listy */
-select.form-control[size] {
-    animation: expandSelect 0.3s ease forwards;
-}
-
 @keyframes expandSelect {
     from {
         opacity: 0;
@@ -496,37 +447,7 @@ select.form-control[size] {
     }
 }
 
-/* Dodatkowe style dla sekcji szyfrowania */
-.code-textarea {
-    font-family: 'Consolas', 'Monaco', monospace;
-    resize: vertical;
-    min-height: 150px;
-    white-space: pre;
-    tab-size: 4;
-}
-
-#encryption-form .drop-zone {
-    background: rgba(255, 255, 255, 0.03);
-    border-color: rgba(78, 205, 196, 0.3);
-}
-
-#encryption-form .drop-zone i {
-    font-size: 3.5rem;
-    margin-bottom: 1.5rem;
-    background: var(--gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-#encryption-form .platform-icons i.fa-cpp {
-    color: #00599C;
-}
-
-#encryption-form .platform-icons i.fa-js {
-    color: #F7DF1E;
-}
-
-/* Style dla sekcji klucza */
+/* Sekcja klucza w szyfrowaniu */
 .key-input-wrapper {
     display: flex;
     gap: 10px;
@@ -555,7 +476,6 @@ select.form-control[size] {
     box-shadow: 0 5px 15px rgba(78, 205, 196, 0.4);
 }
 
-/* Animacja dla przycisku kopiowania */
 .btn-copy-key.copied {
     background: #4CAF50;
-} 
+}

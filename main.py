@@ -11,7 +11,6 @@ from PIL import Image
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
-# Katalogi do przechowywania plików
 UPLOAD_FOLDER = 'uploads'
 CONVERTED_FOLDER = 'converted'
 TEMP_FOLDER = 'temp'
@@ -21,7 +20,6 @@ for folder in [UPLOAD_FOLDER, CONVERTED_FOLDER, TEMP_FOLDER]:
     if not os.path.exists(folder):
         os.makedirs(folder)
 
-# Funkcja czyszcząca stare pliki (starsze niż 1 godzina)
 def cleanup_old_files():
     current_time = time.time()
     for folder in [UPLOAD_FOLDER, CONVERTED_FOLDER, TEMP_FOLDER]:
@@ -40,9 +38,10 @@ def cleanup_thread():
 
 Thread(target=cleanup_thread, daemon=True).start()
 
-# -----------------------------------------------
-# Funkcja konwersji obrazów (przykładowa)
-# -----------------------------------------------
+
+
+
+# 1_ 1 
 def handle_image_conversion(image_data, target_format):
     try:
         temp_filename = f"{uuid.uuid4()}_temp.png"
@@ -57,6 +56,7 @@ def handle_image_conversion(image_data, target_format):
             image = Image.open(temp_path)
         else:
             return False, "Nieprawidłowy format danych wejściowych"
+
         if image.mode in ('RGBA', 'LA'):
             if target_format.lower() == 'jpg':
                 image = image.convert('RGB')
@@ -64,17 +64,35 @@ def handle_image_conversion(image_data, target_format):
                 image = image.convert('RGBA')
         pillow_format = 'JPEG' if target_format.lower() == 'jpg' else target_format.upper()
         image.save(output_path, pillow_format)
+
         if os.path.exists(temp_path):
             os.remove(temp_path)
+
         return True, output_filename
     except Exception as e:
         if os.path.exists(temp_path):
             os.remove(temp_path)
         return False, str(e)
 
-# -----------------------------------------------
-# Funkcja pobierania wideo/audio (przykładowa)
-# -----------------------------------------------
+# 1_ 2 
+@app.route('/convert-image', methods=['POST'])
+def convert_image():
+    try:
+        data = request.json
+        image_data = data['image']
+        target_format = data['format']
+        success, result = handle_image_conversion(image_data, target_format)
+        if success:
+            return jsonify({'success': True,
+                            'download_url': url_for('download_file', filename=result)})
+        else:
+            return jsonify({'success': False, 'error': result})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+
+
+# 2_ 1 
 def download_video(url, format_code, platform):
     try:
         output_filename = f"{uuid.uuid4()}"
@@ -95,14 +113,95 @@ def download_video(url, format_code, platform):
     except Exception as e:
         return False, f"Błąd podczas pobierania: {str(e)}"
 
-# -----------------------------------------------
-# Endpoint obfuskacji JS przy użyciu javascript-obfuscator
-# -----------------------------------------------
+# 2_ 2 
+@app.route('/download', methods=['POST'])
+def download():
+    try:
+        data = request.get_json()
+        file_type = data.get('file-type')
+        if file_type == 'image':
+            # Obsługa konwersji obrazów przez link – rzadziej używana
+            image_data = data.get('url')
+            target_format = data.get('format', 'png').lower()
+            success, result = handle_image_conversion(image_data, target_format)
+            if not success:
+                return jsonify({'error': result}), 400
+            return jsonify({'message': 'Konwersja zakończona pomyślnie!',
+                            'download_url': url_for('download_file', filename=result)})
+
+        elif file_type in ['video', 'audio']:
+            url_input = data.get('url')
+            format_code = 'bestaudio/best' if file_type == 'audio' else 'bestvideo+bestaudio/best'
+            platform = data.get('platform', 'youtube')
+            if data.get('quality'):
+                if data['quality'] == '1':
+                    format_code = 'bestvideo[height<=720]+bestaudio/best'
+                elif data['quality'] == '2':
+                    format_code = 'bestvideo[height<=1080]+bestaudio/best'
+
+            success, result = download_video(url_input, format_code, platform)
+            if not success:
+                return jsonify({'error': result}), 400
+            return jsonify({'message': result['message'],
+                            'download_url': url_for('download_file', filename=result['filename'])})
+
+        return jsonify({'error': 'Nieprawidłowy typ pliku'}), 400
+    except Exception as e:
+        return jsonify({'error': f"Wystąpił błąd: {str(e)}"}), 500
+
+# 2_ 3 
+@app.route('/download_file/<filename>')
+def download_file(filename):
+    try:
+        file_path = os.path.join(CONVERTED_FOLDER, filename)
+        if not os.path.exists(file_path):
+            return jsonify({'error': 'Plik nie istnieje'}), 404
+        return send_file(file_path, as_attachment=True, download_name=filename)
+    except Exception as e:
+        return jsonify({'error': f"Błąd: {str(e)}"}), 500
+
+
+
+
+# 3_ 1
+def new_js_encrypt(code, key):
+    try:
+        code_bytes = code.encode('utf-8')
+        key_bytes = key.encode('utf-8')
+        encrypted_bytes = bytes([b ^ key_bytes[i % len(key_bytes)] for i, b in enumerate(code_bytes)])
+        encrypted_b64 = base64.b64encode(encrypted_bytes).decode('utf-8')
+    except Exception as e:
+        return f"Encryption error: {e}"
+    js_wrapper = f"""(function(){{
+    var encrypted = "{encrypted_b64}";
+    var key = "{key}";
+    function decrypt(enc, key) {{
+        var decoded = atob(enc);
+        var result = "";
+        for(var i = 0; i < decoded.length; i++){{
+            result += String.fromCharCode(decoded.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+        }}
+        return result;
+    }}
+    eval(decrypt(encrypted, key));
+}})();"""
+    return js_wrapper
+
+def new_cpp_encrypt(code, key):
+    import random
+    random.seed(key) 
+    lines = code.splitlines()
+    obfuscated_lines = []
+    for line in lines:
+        if line.strip():
+            rand_comment = ''.join(random.choices('0123456789abcdef', k=8))
+            obfuscated_lines.append(f"{line} // {rand_comment}")
+        else:
+            obfuscated_lines.append(line)
+    return "\n".join(obfuscated_lines)
+
+# 3_ 2 
 def obfuscate_js(js_code: str, config: dict) -> str:
-    """
-    Obfuskacja kodu JS przy użyciu narzędzia javascript-obfuscator.
-    Wymaga, aby Node.js oraz javascript-obfuscator były zainstalowane.
-    """
     input_filename = os.path.join(TEMP_FOLDER, f"{uuid.uuid4()}.js")
     output_filename = os.path.join(TEMP_FOLDER, f"{uuid.uuid4()}_obf.js")
     with open(input_filename, "w", encoding="utf-8") as f:
@@ -150,70 +249,7 @@ def obfuscate_js_endpoint():
     except Exception as e:
         return jsonify(success=False, error=str(e))
 
-# -----------------------------------------------
-# Endpointy dodatkowe
-# -----------------------------------------------
-@app.route('/')
-def index():
-    return render_template('index.html')
-
-@app.route('/convert-image', methods=['POST'])
-def convert_image():
-    try:
-        data = request.json
-        image_data = data['image']
-        target_format = data['format']
-        success, result = handle_image_conversion(image_data, target_format)
-        if success:
-            return jsonify({'success': True,
-                            'download_url': url_for('download_file', filename=result)})
-        else:
-            return jsonify({'success': False, 'error': result})
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)})
-
-@app.route('/download_file/<filename>')
-def download_file(filename):
-    try:
-        file_path = os.path.join(CONVERTED_FOLDER, filename)
-        if not os.path.exists(file_path):
-            return jsonify({'error': 'Plik nie istnieje'}), 404
-        # Używamy download_name (Flask 2.x); jeśli masz starszą wersję, użyj attachment_filename
-        return send_file(file_path, as_attachment=True, download_name=filename)
-    except Exception as e:
-        return jsonify({'error': f"Błąd: {str(e)}"}), 500
-
-@app.route('/download', methods=['POST'])
-def download():
-    try:
-        data = request.get_json()
-        file_type = data.get('file-type')
-        if file_type == 'image':
-            image_data = data.get('url')
-            target_format = data.get('format', 'png').lower()
-            success, result = handle_image_conversion(image_data, target_format)
-            if not success:
-                return jsonify({'error': result}), 400
-            return jsonify({'message': 'Konwersja zakończona pomyślnie!',
-                            'download_url': url_for('download_file', filename=result)})
-        elif file_type in ['video', 'audio']:
-            url_input = data.get('url')
-            format_code = 'bestaudio/best' if file_type == 'audio' else 'bestvideo+bestaudio/best'
-            platform = data.get('platform', 'youtube')
-            if data.get('quality'):
-                if data['quality'] == '1':
-                    format_code = 'bestvideo[height<=720]+bestaudio/best'
-                elif data['quality'] == '2':
-                    format_code = 'bestvideo[height<=1080]+bestaudio/best'
-            success, result = download_video(url_input, format_code, platform)
-            if not success:
-                return jsonify({'error': result}), 400
-            return jsonify({'message': result['message'],
-                            'download_url': url_for('download_file', filename=result['filename'])})
-        return jsonify({'error': 'Nieprawidłowy typ pliku'}), 400
-    except Exception as e:
-        return jsonify({'error': f"Wystąpił błąd: {str(e)}"}), 500
-
+# 3_ 3 
 @app.route('/process-code', methods=['POST'])
 def process_code():
     try:
@@ -231,6 +267,7 @@ def process_code():
                 result_code = new_js_encrypt(code, key)
                 return jsonify({'success': True, 'result': result_code})
             elif operation == 'decrypt':
+                # Tu ewentualnie można by dodać logikę deszyfrowania
                 result_code = "Funkcja deszyfrowania nie jest zaimplementowana."
                 return jsonify({'success': True, 'result': result_code})
             else:
@@ -252,7 +289,7 @@ def encrypt_file():
         language = request.form.get('language', 'javascript')
         key = request.form.get('key', '')
         if not key:
-            return jsonify({'error': 'Brak klucza szyfrującego'}), 400
+            return jsonify({'error': 'Brak klucza szyfrowującego'}), 400
         original_content = uploaded_file.read().decode('utf-8', errors='replace')
         if language.lower() == 'javascript':
             encrypted_content = new_js_encrypt(original_content, key)
@@ -266,17 +303,27 @@ def encrypt_file():
         output_path = os.path.join(CONVERTED_FOLDER, output_filename)
         with open(output_path, 'w', encoding='utf-8') as f:
             f.write(encrypted_content)
-        return jsonify({'message': 'Plik zaszyfrowany pomyślnie!',
-                        'download_url': url_for('download_file', filename=output_filename)})
+        return jsonify({
+            'message': 'Plik zaszyfrowany pomyślnie!',
+            'download_url': url_for('download_file', filename=output_filename)
+        })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
+# -------------------------------------------
+# Wspólne endpointy / widoki (index i nagłówki)
+# -------------------------------------------
 @app.after_request
 def add_header(response):
     response.headers['Access-Control-Allow-Origin'] = '*'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
     response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
     return response
+
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 if __name__ == '__main__':
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
