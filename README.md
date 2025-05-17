@@ -1,4 +1,4 @@
-# Konwerter plików – Projekt Szkolny
+# Konwerter plików
 
 Witaj w repozytorium **Konwertera plików**, który umożliwia wygodne przetwarzanie obrazów, pobieranie plików multimedialnych oraz szyfrowanie kodu. Wszystkie operacje odbywają się **lokalnie**, a projekt wymaga odpowiednich modułów, aby działał poprawnie.
 
@@ -23,7 +23,7 @@ pip install flask yt_dlp pillow
 No i bez [Pythona](https://www.python.org/downloads/) oczywiście
 
 ## Klonowanie repozytorium
-Aby skopiować repozytorium, użyj poniższej komendy:
+Ze względu na to, że całość działa po stronie lokalnej należy użyć następującej komendy w PowerShellu:
 ```
 git clone https://github.com/3godzinyL/py_to_syf_jebac_py_brudna_kopia_c-
 ```
