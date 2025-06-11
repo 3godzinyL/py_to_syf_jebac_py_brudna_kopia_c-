@@ -18,7 +18,7 @@ Witaj w repozytorium **Konwertera plików**, który umożliwia wygodne przetwarz
 ## Wymagane moduły
 Projekt nie zadziała bez zainstalowania następujących modułów:
 ```
-pip install flask yt_dlp pillow
+pip install flask yt_dlp pillow werkzeug
 ```
 No i bez [Pythona](https://www.python.org/downloads/) oczywiście
 
